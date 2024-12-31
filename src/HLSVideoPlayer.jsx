@@ -1,13 +1,15 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Hls from "hls.js";
 
 const HLSVideoPlayer = () => {
   const videoUrl =
-    "https://cineworld.io.vn/assets/video1/HLS/video1_360.m3u8";
+    "https://cineworld.io.vn/assets/video1/HLS/video1_360.m3u8"; // Đường dẫn tới video HLS
   const apiUrl =
-    "https://cineworld.io.vn:7001/api/servers/generate-signed-cookie";
+    "https://cineworld.io.vn:7001/api/servers/generate-signed-cookie"; // API lấy signed cookies
 
-  // Hàm lấy signed cookies trước
+  const [signedCookies, setSignedCookies] = useState(null);
+
+  // Hàm lấy signed cookies từ API
   const fetchSignedCookies = async () => {
     try {
       const response = await fetch(apiUrl, {
@@ -18,13 +20,14 @@ const HLSVideoPlayer = () => {
             "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInN1YiI6IjQ5ODZmNTNjLWEyZGItNGI3MS04MGRmLTQwNGJjYWQ1NDEzYSIsIm5hbWUiOiJBZG1pbiIsIkF2YXRhciI6IiIsInJvbGUiOiJBRE1JTiIsIm5iZiI6MTczNTU4MTY3NiwiZXhwIjoxNzM2MTg2NDc2LCJpYXQiOjE3MzU1ODE2NzYsImlzcyI6ImNpbmV3b3JsZC1hdXRoLWFwaSIsImF1ZCI6ImNpbmV3b3JsZC1jbGllbnQifQ.ca7-GCMHzgiEF_ZU35RNWDZbc4N7zUSX0o9iFypTu7k", // JWT token truyền cứng
         },
       });
+
       if (!response.ok) {
         throw new Error("Failed to fetch signed cookies");
       }
-      console.log(
-        "Signed cookies fetched successfully:",
-        await response.json()
-      );
+
+      const cookies = await response.json();
+      setSignedCookies(cookies);
+      console.log("Signed cookies fetched successfully:", cookies);
     } catch (error) {
       console.error("Error fetching signed cookies:", error);
       throw error;
@@ -36,18 +39,9 @@ const HLSVideoPlayer = () => {
     const video = document.getElementById("hls-video");
 
     try {
-      // Fetch signed cookies trước khi tải video
-      console.log("Fetching signed cookies...");
-      const signedCookieResponse = await fetch("/generate-signed-cookie", {
-        method: "GET",
-        credentials: "include", // Quan trọng để gửi cookie
-      });
-
-      if (!signedCookieResponse.ok) {
-        throw new Error("Failed to fetch signed cookies");
+      if (!signedCookies) {
+        throw new Error("No signed cookies available.");
       }
-
-      console.log("Signed cookies fetched successfully!");
 
       // Kiểm tra hỗ trợ HLS
       if (Hls.isSupported()) {
@@ -102,7 +96,7 @@ const HLSVideoPlayer = () => {
     };
 
     initPlayer();
-  }, []);
+  }, [signedCookies]);
 
   return (
     <div id="player-container" style={styles.container}>
