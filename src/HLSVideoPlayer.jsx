@@ -1,48 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Hls from "hls.js";
 
 const HLSVideoPlayer = () => {
   const videoUrl =
-    "https://cineworld.io.vn/assets/video1/HLS/video1_360.m3u8"; // Đường dẫn tới video HLS
-  const apiUrl =
-    "https://cineworld.io.vn:7001/api/servers/generate-signed-cookie"; // API lấy signed cookies
-
-  const [signedCookies, setSignedCookies] = useState(null);
-
-  // Hàm lấy signed cookies từ API
-  const fetchSignedCookies = async () => {
-    try {
-      const response = await fetch(apiUrl, {
-        method: "GET",
-        credentials: "include",
-        headers: {
-          Authorization:
-            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInN1YiI6IjQ5ODZmNTNjLWEyZGItNGI3MS04MGRmLTQwNGJjYWQ1NDEzYSIsIm5hbWUiOiJBZG1pbiIsIkF2YXRhciI6IiIsInJvbGUiOiJBRE1JTiIsIm5iZiI6MTczNTU4MTY3NiwiZXhwIjoxNzM2MTg2NDc2LCJpYXQiOjE3MzU1ODE2NzYsImlzcyI6ImNpbmV3b3JsZC1hdXRoLWFwaSIsImF1ZCI6ImNpbmV3b3JsZC1jbGllbnQifQ.ca7-GCMHzgiEF_ZU35RNWDZbc4N7zUSX0o9iFypTu7k", // JWT token truyền cứng
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch signed cookies");
-      }
-
-      const cookies = await response.json();
-      setSignedCookies(cookies);
-      console.log("Signed cookies fetched successfully:", cookies);
-    } catch (error) {
-      console.error("Error fetching signed cookies:", error);
-      throw error;
-    }
-  };
+    "https://dot-s3-demo.s3.ap-southeast-2.amazonaws.com/assets/video1/HLS/video1_360.m3u8"; // Đường dẫn tới video HLS
 
   // Hàm load video HLS
   const loadHLSVideo = async () => {
     const video = document.getElementById("hls-video");
 
     try {
-      if (!signedCookies) {
-        throw new Error("No signed cookies available.");
-      }
-
       // Kiểm tra hỗ trợ HLS
       if (Hls.isSupported()) {
         console.log("HLS.js is supported. Initializing player...");
@@ -86,17 +53,8 @@ const HLSVideoPlayer = () => {
   };
 
   useEffect(() => {
-    const initPlayer = async () => {
-      try {
-        await fetchSignedCookies();
-        await loadHLSVideo();
-      } catch (error) {
-        console.error("Initialization failed:", error);
-      }
-    };
-
-    initPlayer();
-  }, [signedCookies]);
+    loadHLSVideo();
+  }, []);
 
   return (
     <div id="player-container" style={styles.container}>
