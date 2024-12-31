@@ -37,17 +37,7 @@ const HLSVideoPlayer = () => {
 
     try {
       // Fetch signed cookies trước khi tải video
-      console.log("Fetching signed cookies...");
-      const signedCookieResponse = await fetch("/generate-signed-cookie", {
-        method: "GET",
-        credentials: "include", // Quan trọng để gửi cookie
-      });
-
-      if (!signedCookieResponse.ok) {
-        throw new Error("Failed to fetch signed cookies");
-      }
-
-      console.log("Signed cookies fetched successfully!");
+      await fetchSignedCookies();
 
       // Kiểm tra hỗ trợ HLS
       if (Hls.isSupported()) {
@@ -68,11 +58,22 @@ const HLSVideoPlayer = () => {
           }
         });
 
-        // Load video source
-        hls.loadSource(videoUrl);
-        hls.attachMedia(video);
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          console.log("Manifest loaded, starting playback...");
+        // Load video source với fetch để gửi cookie
+        const response = await fetch(videoUrl, {
+          method: "GET",
+          credentials: "include", // Quan trọng để gửi cookie
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to load video source");
+        }
+
+        const videoBlob = await response.blob();
+        const videoObjectUrl = URL.createObjectURL(videoBlob);
+        video.src = videoObjectUrl;
+
+        video.addEventListener("loadedmetadata", () => {
+          console.log("Video loaded, starting playback...");
           video.play();
         });
       } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
@@ -94,7 +95,6 @@ const HLSVideoPlayer = () => {
   useEffect(() => {
     const initPlayer = async () => {
       try {
-        await fetchSignedCookies();
         await loadHLSVideo();
       } catch (error) {
         console.error("Initialization failed:", error);
