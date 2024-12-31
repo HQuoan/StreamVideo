@@ -1,5 +1,5 @@
 # Bước 1: Sử dụng image Node.js để build ứng dụng
-FROM node:16 AS build
+FROM node:20 AS build
 
 # Thiết lập thư mục làm việc
 WORKDIR /app
