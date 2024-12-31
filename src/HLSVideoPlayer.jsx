@@ -3,7 +3,7 @@ import Hls from "hls.js";
 
 const HLSVideoPlayer = () => {
   const videoUrl =
-    "https://cdn.cineworld.io.vn/assets/video1/HLS/video1_360.m3u8";
+    "https://cineworld.io.vn/assets/video1/HLS/video1_360.m3u8";
   const apiUrl =
     "https://cineworld.io.vn:7001/api/servers/generate-signed-cookie";
 
