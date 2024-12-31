@@ -1,5 +1,5 @@
-# Sử dụng image Node.js để build ứng dụng
-FROM node:14 AS build
+# Bước 1: Sử dụng image Node.js để build ứng dụng
+FROM node:16 AS build
 
 # Thiết lập thư mục làm việc
 WORKDIR /app
@@ -20,7 +20,7 @@ RUN npm run build
 FROM nginx:alpine
 
 # Sao chép files build vào thư mục Nginx
-COPY --from=build /app/build /usr/share/nginx/html
+COPY --from=build /app/dist /usr/share/nginx/html
 
 # Cấu hình Nginx
 COPY nginx.conf /etc/nginx/conf.d/default.conf
