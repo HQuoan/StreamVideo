@@ -10,7 +10,7 @@ services:
     restart: always
 
   nginx:
-    image: nginx:stable-alpine
+    image: nginx:alpine
     ports:
       - "8081:80" # Map port 8081 của server tới Nginx container
     volumes:
