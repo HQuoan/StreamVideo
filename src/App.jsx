@@ -5,15 +5,15 @@ const App = () => {
   const [videoUrl, setVideoUrl] = useState(null);
 
   useEffect(() => {
-    // Lấy tham số từ URL của trình duyệt
-    const path = window.location.pathname;
-    const baseDomain = path.slice(1);
+    // Lấy tham số `url` từ query string của URL
+    const queryParams = new URLSearchParams(window.location.search);
+    const videoUrlParam = queryParams.get("url");
 
-    if (baseDomain) {
-      const fullVideoUrl = `https://${baseDomain}`;
+    if (videoUrlParam) {
+      const fullVideoUrl = `https://${videoUrlParam}`;
       setVideoUrl(fullVideoUrl);
     } else {
-      console.error("Invalid URL format");
+      console.error("Missing or invalid 'url' parameter in query string");
     }
   }, []); // Chạy một lần khi component được mount
 
