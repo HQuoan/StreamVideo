@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-//  videoUrl  = https://cdn.cineworld.io.vn/225661_small.mp4
+// videoUrl = https://cdn.cineworld.io.vn/225661_small.mp4
 const MP4VideoPlayer = ({ videoUrl }) => {
   const apiUrl =
     "https://cineworld.io.vn:7001/api/servers/generate-signed-cookie";
@@ -31,8 +31,6 @@ const MP4VideoPlayer = ({ videoUrl }) => {
     }
   };
 
-
-
   // Hàm load video MP4
   const loadMP4Video = () => {
     const video = document.getElementById("mp4-video");
@@ -45,9 +43,18 @@ const MP4VideoPlayer = ({ videoUrl }) => {
 
       console.log("Loading MP4 video...");
       video.src = videoUrl; // Set video source
+
+      // Lắng nghe sự kiện loadedmetadata
       video.addEventListener("loadedmetadata", () => {
         console.log("Metadata loaded, starting playback...");
         video.play(); // Play video khi metadata đã tải
+      });
+
+      // Lắng nghe sự kiện error
+      video.addEventListener("error", () => {
+        console.error(
+          `Error loading video from URL: ${videoUrl}. Please check the URL or network connection.`
+        );
       });
     } catch (error) {
       console.error("Error loading MP4 video:", error);

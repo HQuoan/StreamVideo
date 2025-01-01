@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import MP4VideoPlayer from "./HLSVideoPlayer";
+import MP4VideoPlayer from "./HLSVideoPlayerhuy";
 
 const App = () => {
   const [videoUrl, setVideoUrl] = useState(null);
@@ -19,11 +19,14 @@ const App = () => {
 
   return (
     <div>
+      <h1>url: {videoUrl}</h1>
+      <div>
       {videoUrl ? (
         <MP4VideoPlayer videoUrl={videoUrl} />
       ) : (
         <p>Loading video...</p>
       )}
+    </div>
     </div>
   );
 };
