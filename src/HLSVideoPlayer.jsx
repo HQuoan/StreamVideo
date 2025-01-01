@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react";
 
-//  videoUrl  = https://cdn.cineworld.io.vn/225661_small.mp4
 const MP4VideoPlayer = ({ videoUrl }) => {
   const apiUrl =
     "https://cineworld.io.vn:7001/api/servers/generate-signed-cookie";
 
   const [signedCookies, setSignedCookies] = useState(null);
 
-  // Hàm lấy signed cookies từ API
   const fetchSignedCookies = async () => {
     try {
       const response = await fetch(apiUrl, {
@@ -24,16 +22,12 @@ const MP4VideoPlayer = ({ videoUrl }) => {
       }
 
       const cookies = await response.json();
-      setSignedCookies(cookies); // Thiết lập signed cookies
-      console.log("Signed cookies fetched successfully:", cookies);
+      setSignedCookies(cookies);
     } catch (error) {
       console.error("Error fetching signed cookies:", error);
     }
   };
 
-
-
-  // Hàm load video MP4
   const loadMP4Video = () => {
     const video = document.getElementById("mp4-video");
 
@@ -43,32 +37,34 @@ const MP4VideoPlayer = ({ videoUrl }) => {
         return;
       }
 
-      console.log("Loading MP4 video...");
-      video.src = videoUrl; // Set video source
+      video.src = videoUrl;
+
       video.addEventListener("loadedmetadata", () => {
-        console.log("Metadata loaded, starting playback...");
-        video.play(); // Play video khi metadata đã tải
+        video.play();
+      });
+
+      video.addEventListener("error", () => {
+        console.error(
+          `Error loading video from URL: ${videoUrl}. Please check the URL or network connection.`
+        );
       });
     } catch (error) {
       console.error("Error loading MP4 video:", error);
     }
   };
 
-  // useEffect để gọi fetchSignedCookies ngay khi component được mount lần đầu
   useEffect(() => {
     fetchSignedCookies();
-  }, []); // Gọi chỉ một lần khi component được render lần đầu tiên
+  }, []);
 
-  // useEffect để load video khi signedCookies đã có giá trị
   useEffect(() => {
     if (signedCookies) {
-      loadMP4Video(); // Chỉ load video khi signedCookies có giá trị
+      loadMP4Video();
     }
-  }, [signedCookies]); // Mỗi khi signedCookies thay đổi, gọi loadMP4Video
+  }, [signedCookies]);
 
   return (
     <div id="player-container" style={styles.container}>
-      <h1>MP4 Video Player</h1>
       <video
         id="mp4-video"
         controls
@@ -81,11 +77,16 @@ const MP4VideoPlayer = ({ videoUrl }) => {
 
 const styles = {
   container: {
-    textAlign: "center",
+    backgroundColor: "#000", // Màu nền của trình phát video
+    padding: "20px",
+    borderRadius: "10px",
+    maxWidth: "700px",
+    margin: "auto",
   },
   video: {
-    maxWidth: "100%",
-    height: "auto",
+    borderRadius: "10px",
+    width: "100%",
+    outline: "none",
   },
 };
 
