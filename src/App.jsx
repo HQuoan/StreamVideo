@@ -1,12 +1,29 @@
-// import VideoPlayer from "./VideoPlayer"; // assuming LoginPage is in the same directory
-import MP4VideoPlayer from "./HLSVideoPlayer"; // assuming LoginPage is in the same directory
+import { useEffect, useState } from "react";
+import MP4VideoPlayer from "./HLSVideoPlayer";
 
 const App = () => {
-  const videoUrl = "https://cineworld.io.vn/225661_small.mp4";
+  const [videoUrl, setVideoUrl] = useState(null);
+
+  useEffect(() => {
+    // Lấy tham số từ URL của trình duyệt
+    const path = window.location.pathname;
+    const baseDomain = path.slice(1);
+
+    if (baseDomain) {
+      const fullVideoUrl = `https://${baseDomain}`;
+      setVideoUrl(fullVideoUrl);
+    } else {
+      console.error("Invalid URL format");
+    }
+  }, []); // Chạy một lần khi component được mount
 
   return (
     <div>
-      <MP4VideoPlayer videoUrl={videoUrl} />
+      {videoUrl ? (
+        <MP4VideoPlayer videoUrl={videoUrl} />
+      ) : (
+        <p>Loading video...</p>
+      )}
     </div>
   );
 };

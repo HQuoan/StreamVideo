@@ -14,7 +14,7 @@ const MP4VideoPlayer = ({ videoUrl }) => {
         credentials: "include",
         headers: {
           Authorization:
-            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInN1YiI6IjQ5ODZmNTNjLWEyZGItNGI3MS04MGRmLTQwNGJjYWQ1NDEzYSIsIm5hbWUiOiJBZG1pbiIsIkF2YXRhciI6Imh0dHBzOi8vY2luZXdvcmxkczMuczMuYXAtc291dGhlYXN0LTIuYW1hem9uYXdzLmNvbS91c2VyX2F2YXRhcnMvNDk4NmY1M2MtYTJkYi00YjcxLTgwZGYtNDA0YmNhZDU0MTNhIiwicm9sZSI6IkFETUlOIiwibmJmIjoxNzM1NzAyODkwLCJleHAiOjE3MzYzMDc2OTAsImlhdCI6MTczNTcwMjg5MCwiaXNzIjoiY2luZXdvcmxkLWF1dGgtYXBpIiwiYXVkIjoiY2luZXdvcmxkLWNsaWVudCJ9.ETmrhiNUKgxCSK6D59GyOXdTQaGUWUvKpgRxPAjPwFA", // JWT token truyền cứng
+            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInN1YiI6IjQ5ODZmNTNjLWEyZGItNGI3MS04MGRmLTQwNGJjYWQ1NDEzYSIsIm5hbWUiOiJBZG1pbiIsIkF2YXRhciI6Imh0dHBzOi8vY2luZXdvcmxkczMuczMuYXAtc291dGhlYXN0LTIuYW1hem9uYXdzLmNvbS91c2VyX2F2YXRhcnMvNDk4NmY1M2MtYTJkYi00YjcxLTgwZGYtNDA0YmNhZDU0MTNhIiwicm9sZSI6IkFETUlOIiwibmJmIjoxNzM1NzAyODkwLCJleHAiOjE3MzYzMDc2OTAsImlhdCI6MTczNTcwMjg5MCwiaXNzIjoiY2luZXdvcmxkLWF1dGgtYXBpIiwiYXVkIjoiY2luZXdvcmxkLWNsaWVudCJ9.ETmrhiNUKgxCSK6D59GyOXdTQaGUWUvKpgRxPAjPwFA",
         },
       });
 
@@ -23,7 +23,7 @@ const MP4VideoPlayer = ({ videoUrl }) => {
       }
 
       const cookies = await response.json();
-      setSignedCookies(cookies);
+      setSignedCookies(cookies); // Thiết lập signed cookies
       console.log("Signed cookies fetched successfully:", cookies);
     } catch (error) {
       console.error("Error fetching signed cookies:", error);
@@ -36,32 +36,32 @@ const MP4VideoPlayer = ({ videoUrl }) => {
 
     try {
       if (!signedCookies) {
-        throw new Error("No signed cookies available.");
+        console.warn("No signed cookies available. Please refresh or wait.");
+        return;
       }
 
       console.log("Loading MP4 video...");
-      video.src = videoUrl;
+      video.src = videoUrl; // Set video source
       video.addEventListener("loadedmetadata", () => {
         console.log("Metadata loaded, starting playback...");
-        video.play();
+        video.play(); // Play video khi metadata đã tải
       });
     } catch (error) {
       console.error("Error loading MP4 video:", error);
     }
   };
 
+  // useEffect để gọi fetchSignedCookies ngay khi component được mount lần đầu
   useEffect(() => {
-    const initPlayer = async () => {
-      try {
-        await fetchSignedCookies();
-        loadMP4Video();
-      } catch (error) {
-        console.error("Initialization failed:", error);
-      }
-    };
+    fetchSignedCookies();
+  }, []); // Gọi chỉ một lần khi component được render lần đầu tiên
 
-    initPlayer();
-  }, [signedCookies, videoUrl]);
+  // useEffect để load video khi signedCookies đã có giá trị
+  useEffect(() => {
+    if (signedCookies) {
+      loadMP4Video(); // Chỉ load video khi signedCookies có giá trị
+    }
+  }, [signedCookies]); // Mỗi khi signedCookies thay đổi, gọi loadMP4Video
 
   return (
     <div id="player-container" style={styles.container}>
