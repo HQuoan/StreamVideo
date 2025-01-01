@@ -1,66 +1,73 @@
-import { useEffect } from "react";
-import Hls from "hls.js";
+import { useEffect, useState } from "react";
 
-const HLSVideoPlayer = () => {
-  const videoUrl =
-    "https://dot-s3-demo.s3.ap-southeast-2.amazonaws.com/assets/video1/HLS/video1_360.m3u8"; // Đường dẫn tới video HLS
+const MP4VideoPlayer = ({ videoUrl }) => {
+  const apiUrl =
+    "https://cineworld.io.vn:7001/api/servers/generate-signed-cookie";
 
-  // Hàm load video HLS
-  const loadHLSVideo = async () => {
-    const video = document.getElementById("hls-video");
+  const [signedCookies, setSignedCookies] = useState(null);
+
+  // Hàm lấy signed cookies từ API
+  const fetchSignedCookies = async () => {
+    try {
+      const response = await fetch(apiUrl, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          Authorization:
+            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInN1YiI6IjQ5ODZmNTNjLWEyZGItNGI3MS04MGRmLTQwNGJjYWQ1NDEzYSIsIm5hbWUiOiJBZG1pbiIsIkF2YXRhciI6Imh0dHBzOi8vY2luZXdvcmxkczMuczMuYXAtc291dGhlYXN0LTIuYW1hem9uYXdzLmNvbS91c2VyX2F2YXRhcnMvNDk4NmY1M2MtYTJkYi00YjcxLTgwZGYtNDA0YmNhZDU0MTNhIiwicm9sZSI6IkFETUlOIiwibmJmIjoxNzM1NzAyODkwLCJleHAiOjE3MzYzMDc2OTAsImlhdCI6MTczNTcwMjg5MCwiaXNzIjoiY2luZXdvcmxkLWF1dGgtYXBpIiwiYXVkIjoiY2luZXdvcmxkLWNsaWVudCJ9.ETmrhiNUKgxCSK6D59GyOXdTQaGUWUvKpgRxPAjPwFA", // JWT token truyền cứng
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch signed cookies");
+      }
+
+      const cookies = await response.json();
+      setSignedCookies(cookies);
+      console.log("Signed cookies fetched successfully:", cookies);
+    } catch (error) {
+      console.error("Error fetching signed cookies:", error);
+    }
+  };
+
+  // Hàm load video MP4
+  const loadMP4Video = () => {
+    const video = document.getElementById("mp4-video");
 
     try {
-      // Kiểm tra hỗ trợ HLS
-      if (Hls.isSupported()) {
-        console.log("HLS.js is supported. Initializing player...");
-        const hls = new Hls();
-
-        // Thêm xử lý lỗi nếu gặp lỗi 403
-        hls.on(Hls.Events.ERROR, (event, data) => {
-          if (
-            data.type === Hls.ErrorTypes.NETWORK_ERROR &&
-            data.response?.code === 403
-          ) {
-            console.error(
-              "403 Forbidden: Check signed cookies or CloudFront configuration."
-            );
-          } else {
-            console.error("HLS.js error:", data);
-          }
-        });
-
-        // Load video source
-        hls.loadSource(videoUrl);
-        hls.attachMedia(video);
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          console.log("Manifest loaded, starting playback...");
-          video.play();
-        });
-      } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-        console.log("Native HLS supported. Loading video...");
-        video.src = videoUrl;
-        video.addEventListener("loadedmetadata", () => {
-          video.play();
-        });
-      } else {
-        console.error(
-          "HLS.js is not supported, and native HLS is unavailable."
-        );
+      if (!signedCookies) {
+        throw new Error("No signed cookies available.");
       }
+
+      console.log("Loading MP4 video...");
+      video.src = videoUrl;
+      video.addEventListener("loadedmetadata", () => {
+        console.log("Metadata loaded, starting playback...");
+        video.play();
+      });
     } catch (error) {
-      console.error("Error loading HLS video:", error);
+      console.error("Error loading MP4 video:", error);
     }
   };
 
   useEffect(() => {
-    loadHLSVideo();
-  }, []);
+    const initPlayer = async () => {
+      try {
+        await fetchSignedCookies();
+        loadMP4Video();
+      } catch (error) {
+        console.error("Initialization failed:", error);
+      }
+    };
+
+    initPlayer();
+  }, [signedCookies, videoUrl]);
 
   return (
     <div id="player-container" style={styles.container}>
-      <h1>HLS Video Player</h1>
+      <h1>MP4 Video Player</h1>
       <video
-        id="hls-video"
+        id="mp4-video"
         controls
         width="640"
         height="360"
@@ -79,4 +86,4 @@ const styles = {
   },
 };
 
-export default HLSVideoPlayer;
+export default MP4VideoPlayer;
